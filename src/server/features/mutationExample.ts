@@ -24,21 +24,8 @@ type MutationArgs = {
 }
 
 async function service({ text, ctx }: MutationArgs) {
-  const data: Prisma.PostCreateInput = {
-    title: text,
-  }
-
   if (ctx.session) {
-    data.author = {
-      connect: {
-        email: ctx.session.user.email,
-      },
-    }
   }
 
-  const post = await prisma.post.create<Prisma.PostCreateArgs>({
-    data,
-  })
-
-  return post
+  return true
 }

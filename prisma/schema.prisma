@@ -50,7 +50,7 @@ model User {
   image         String?
   name          String?
   role          Role      @default(USER)
-  posts         Post[]
+  recipes       Recipe[]
   accounts      Account[]
   sessions      Session[]
 }
@@ -63,16 +63,57 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  published Boolean  @default(false)
-  title     String   @db.VarChar(255)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  String?
+model Ingredient {
+  id               String             @id @default(cuid())
+  name             String             @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now())
+  deletedAt        DateTime?
+  recipeIngredient RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  id              String          @id @default(cuid())
+  recipe          Recipe          @relation(fields: [recipeId], references: [id])
+  ingredient      Ingredient      @relation(fields: [ingredientId], references: [id])
+  measurementQty  Float
+  measurementUnit MeasurementUnit @default(GRAM)
+  recipeId        String
+  ingredientId    String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now())
+  deletedAt       DateTime?
+
+  @@unique([recipeId, ingredientId], name: "recipeIngredientId")
+  @@index([ingredientId])
+  @@index([recipeId])
+}
+
+model Recipe {
+  id           String             @id @default(cuid())
+  name         String             @unique
+  cookTime     DateTime?
+  prepTime     DateTime?
+  ingredients  RecipeIngredient[]
+  instructions String[]
+  author       User               @relation(fields: [authorId], references: [id])
+  authorId     String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now())
+  deletedAt    DateTime?
 
   @@index([authorId])
+}
+
+enum MeasurementUnit {
+  UNIT
+  CUP
+  TBSP
+  TSP
+  GRAM
+  ML
+  MM
+  PINCH
 }
 
 enum Role {

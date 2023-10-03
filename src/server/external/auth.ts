@@ -1,5 +1,4 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { PrismaClient } from "@prisma/client"
 import { type GetServerSidePropsContext } from "next"
 import {
   getServerSession,
@@ -8,6 +7,7 @@ import {
 } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { env } from "~/env.mjs"
+import prisma from "./prisma"
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -37,8 +37,6 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
-
-const prisma = new PrismaClient()
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),

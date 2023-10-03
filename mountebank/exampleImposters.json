@@ -1,0 +1,161 @@
+{
+  "imposters": [
+    {
+      "port": 4545,
+      "protocol": "http",
+      "name": "Get custom employees reports",
+      "stubs": [
+        {
+          "predicates": [
+            {
+              "equals": {
+                "method": "POST",
+                "path": "/developer/v1/reports/custom",
+                "query": {
+                  "format": "json",
+                  "onlyCurrent": true
+                },
+                "headers": {
+                  "content-type": "application/json",
+                  "authorization": "Basic cmFuZG9tOmlnbm9yZWRQYXNzd29yZFZhbHVl"
+                }
+              }
+            }
+          ],
+          "responses": [
+            {
+              "is": {
+                "statusCode": 200,
+                "body": {
+                  "title": "Sync Employees",
+                  "fields": [
+                    {
+                      "id": "1",
+                      "type": "Text",
+                      "name": "firstName"
+                    }
+                  ],
+                  "employees": [
+                    {
+                      "id": "1",
+                      "firstName": "Test"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "predicates": [
+            {
+              "equals": {
+                "method": "POST",
+                "path": "/incorrect/v1/reports/custom",
+                "query": {
+                  "format": "json",
+                  "onlyCurrent": true
+                }
+              }
+            }
+          ],
+          "responses": [
+            {
+              "is": {
+                "statusCode": 404,
+                "statusText": "Not Found"
+              }
+            }
+          ]
+        },
+        {
+          "predicates": [
+            {
+              "equals": {
+                "method": "POST",
+                "path": "/developer/v1/reports/custom",
+                "query": {
+                  "format": "json",
+                  "onlyCurrent": true
+                },
+                "headers": {
+                  "content-type": "application/json",
+                  "authorization": "Basic aW5jb3JyZWN0OnJhbmRvbVN0cmluZw=="
+                }
+              }
+            }
+          ],
+          "responses": [
+            {
+              "is": {
+                "statusCode": 401,
+                "statusText": "Unauthorized"
+              }
+            }
+          ]
+        },
+        {
+          "predicates": [
+            {
+              "equals": {
+                "method": "POST",
+                "path": "/developer/v1/webhooks",
+                "headers": {
+                  "content-type": "application/json",
+                  "authorization": "Basic cmFuZG9tOmlnbm9yZWRQYXNzd29yZFZhbHVl"
+                }
+              }
+            }
+          ],
+          "responses": [
+            {
+              "is": {
+                "statusCode": 200,
+                "body": {
+                  "id": "10",
+                  "name": "Talents sync",
+                  "created": "2023-05-27 10:08:08",
+                  "lastSent": null,
+                  "monitorFields": [
+                    "employeeNumber",
+                    "firstName",
+                    "lastName",
+                    "dateOfBirth",
+                    "gender",
+                    "department",
+                    "hireDate",
+                    "location"
+                  ],
+                  "postFields": {
+                    "employeeNumber": "employeeIdCode",
+                    "firstName": "firstName",
+                    "lastName": "lastName",
+                    "dateOfBirth": "dateOfBirth",
+                    "gender": "gender",
+                    "department": "cohort",
+                    "hireDate": "hireDate",
+                    "location": "location"
+                  },
+                  "url": "https://webhook.site/eac5bbab-a6f8-427a-bc41-35865a8231d2",
+                  "format": "json",
+                  "frequency": {
+                    "day": "",
+                    "month": "",
+                    "hour": "",
+                    "minute": "1"
+                  },
+                  "limit": {
+                    "times": null,
+                    "seconds": null
+                  },
+                  "includeCompanyDomain": false,
+                  "privateKey": "b8e52292bb2269bda3db9c6011a5f91b"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

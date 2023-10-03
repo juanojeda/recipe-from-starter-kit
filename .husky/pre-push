@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+if [[ -n ${SKIP+x} ]]; then
+  echo "Skipping linting and test"
+  exit 0
+fi
+echo "Testing your changes..."
+export NODE_ENV=test
+npm run lint
+npm run unit:test
+npm run build

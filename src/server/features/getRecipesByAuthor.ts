@@ -7,12 +7,12 @@ export const getRecipesByAuthor = {
   getRecipesByAuthor: publicProcedure
     .input(
       z.object({
-        authorId: z.string(),
+        email: z.string(),
       })
     )
     .query(({ input }) => {
       try {
-        return service({ authorId: input.authorId })
+        return service({ email: input.email })
       } catch (err) {
         console.log(err)
         throw err
@@ -21,13 +21,15 @@ export const getRecipesByAuthor = {
 }
 
 interface GetRecipesByAuthorArgs {
-  authorId: string
+  email: string
 }
 
-async function service({ authorId }: GetRecipesByAuthorArgs) {
+async function service({ email }: GetRecipesByAuthorArgs) {
   return prisma.recipe.findMany({
     where: {
-      authorId,
+      author: {
+        email,
+      },
     },
     select: {
       id: true,

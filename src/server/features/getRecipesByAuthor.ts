@@ -33,8 +33,8 @@ async function service({ authorId }: GetRecipesByAuthorArgs) {
       id: true,
       name: true,
       updatedAt: true,
-      cookTime: true,
-      prepTime: true,
+      cookTimeMins: true,
+      prepTimeMins: true,
     },
   })
 }

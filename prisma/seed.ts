@@ -15,10 +15,14 @@ const seedRecipe = async (recipes: RecipeSeedData[]) => {
           name: recipe.name,
           instructions: recipe.instructions,
           authorId: recipe.authorId,
+          prepTimeMins: recipe.prepTimeMins,
+          cookTimeMins: recipe.cookTimeMins,
         },
         update: {
           name: recipe.name,
           instructions: recipe.instructions,
+          prepTimeMins: recipe.prepTimeMins,
+          cookTimeMins: recipe.cookTimeMins,
         },
       })
 

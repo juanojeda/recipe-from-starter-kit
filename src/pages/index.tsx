@@ -2,20 +2,16 @@
 
 import React from "react"
 import { type NextPage } from "next"
-import Link from "next/link"
 import Head from "next/head"
 import { useSession } from "next-auth/react"
 import { api } from "~/server/api"
-import { Button, buttonVariants } from "~/components/ui/button"
-import { type ProtectedExampleReturnType } from "~/server/features/protectedExample"
 import { Input } from "~/components/ui/input"
+import { Button } from "~/components/ui/button"
+import Link from "next/link"
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession()
   const { data: recipesData } = api.getRecipesByAuthor.useQuery({ authorId: 'my-unique-user-uuid1' })
-
-  console.log(recipesData)
-
 
   return (
     <>
@@ -34,20 +30,28 @@ const Home: NextPage = () => {
                 : "You are unauthenticated. Sign in to see the posts."}
             </p>
 
-            <h3>Your recipes</h3>
+            <h2>Your recipes</h2>
 
-            <ul>
-              {
-                recipesData?.map(({ name, id, prepTime, cookTime }) => (
-                  <li key={id}><strong>{name}</strong>
-                    {
-                      prepTime && <>- Prep time: {prepTime}</>
-                    }
-                    {cookTime && <>- Cook time: {cookTime}</>}
-                  </li>
-                ))
-              }
-            </ul>
+            <Button asChild>
+              <Link href="/recipes/new">Create a recipe</Link>
+            </Button>
+
+            {
+              recipesData?.length ?
+                <ul>
+                  {
+                    recipesData.map(({ name, id, prepTimeMins, cookTimeMins }) => (
+                      <li key={id}><strong>{name}</strong>
+                        {
+                          prepTimeMins && <> - Prep time: {prepTimeMins}</>
+                        }
+                        {cookTimeMins && <> - Cook time: {cookTimeMins}</>}
+                      </li>
+                    ))
+                  }
+                </ul>
+                : <div>You do not have recipes</div>
+            }
 
             {/* {googleAuthConfigured ? (
               sessionData?.user ? (

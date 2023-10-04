@@ -10,6 +10,8 @@ export interface RecipeSeedData {
   }[]
   instructions: string[]
   authorId: string
+  prepTimeMins?: number
+  cookTimeMins?: number
 }
 
 export const recipesSeed: RecipeSeedData[] = [
@@ -25,6 +27,8 @@ export const recipesSeed: RecipeSeedData[] = [
     ],
     instructions: ["First instruction", "Second instruction"],
     authorId: `${SEED_USER_UUID}1`,
+    prepTimeMins: 10,
+    cookTimeMins: 30,
   },
   {
     name: "Another recipe",

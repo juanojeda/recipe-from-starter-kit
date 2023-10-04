@@ -92,8 +92,8 @@ model RecipeIngredient {
 model Recipe {
   id           String             @id @default(cuid())
   name         String             @unique
-  cookTime     DateTime?
-  prepTime     DateTime?
+  cookTimeMins Int? // Currently represents a number of minutes
+  prepTimeMins Int? // Currently represents a number of minutes
   ingredients  RecipeIngredient[]
   instructions String[]
   author       User               @relation(fields: [authorId], references: [id])

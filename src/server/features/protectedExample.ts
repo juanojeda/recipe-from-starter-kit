@@ -32,19 +32,10 @@ async function service({ email }: User) {
     where: {
       email,
     },
-    include: {
-      posts: true,
-    },
-  })
-  const allPosts = await prisma.post.findMany({
-    include: {
-      author: true,
-    },
   })
 
   return {
     user,
-    allPosts,
   }
 }
 export type ProtectedExampleReturnType = Prisma.PromiseReturnType<

@@ -1,7 +1,7 @@
+import { z } from "zod"
 import { publicProcedure } from "~/server/middleware/trpc"
 import prisma from "~/server/external/prisma"
-import { z } from "zod"
-import { Unarray } from "~/utils/typeUtils"
+import { type Unarray } from "~/utils/typeUtils"
 
 // The controller
 export const getRecipeById = {

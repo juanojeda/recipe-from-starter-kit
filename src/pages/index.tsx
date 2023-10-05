@@ -11,9 +11,11 @@ import Link from "next/link"
 const Home: NextPage = () => {
   const { data: sessionData } = useSession()
 
-  const { data: recipesData } = api.getRecipesByAuthor.useQuery({ email: sessionData?.user.email || "" })
+  const { data: recipesData } = api.getRecipesByAuthor.useQuery({
+    email: sessionData?.user.email || "",
+  })
 
-  const isAuthedUser: boolean = !!sessionData && !!sessionData.user;
+  const isAuthedUser: boolean = !!sessionData && !!sessionData.user
 
   return (
     <>
@@ -23,10 +25,9 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.png" />
       </Head>
       <main className="flex min-h-screen flex-col">
-        <div className="container flex flex-col items-center gap-12 px-4 pt-4 py-16 ">
-
+        <div className="container flex flex-col items-center gap-12 px-4 py-16 pt-4 ">
           {isAuthedUser ? (
-            <div className="w-full flex items-center justify-between">
+            <div className="flex w-full items-center justify-between">
               <div>Welcome back {sessionData?.user.name}</div>
               <Button variant="secondary" asChild>
                 <Link href="/api/auth/signout">Sign out</Link>
@@ -39,31 +40,27 @@ const Home: NextPage = () => {
           )}
 
           <div className="flex flex-col items-center gap-2">
-
             <h1>Your recipes</h1>
 
             <Button asChild>
               <Link href="/recipes/new">Create a recipe</Link>
             </Button>
 
-            {
-              recipesData?.length ?
-                <ul>
-                  {
-                    recipesData.map(({ name, id, prepTimeMins, cookTimeMins }) => (
-                      <li key={id}>
-                        <Link href={`/recipes/${id}`}>{name}
-                          {
-                            prepTimeMins && <> - Prep time: {prepTimeMins}</>
-                          }
-                          {cookTimeMins && <> - Cook time: {cookTimeMins}</>}
-                        </Link>
-                      </li>
-                    ))
-                  }
-                </ul>
-                : <div>You do not have recipes</div>
-            }
+            {recipesData?.length ? (
+              <ul>
+                {recipesData.map(({ name, id, prepTimeMins, cookTimeMins }) => (
+                  <li key={id}>
+                    <Link href={`/recipes/${id}`}>
+                      {name}
+                      {prepTimeMins && <> - Prep time: {prepTimeMins}</>}
+                      {cookTimeMins && <> - Cook time: {cookTimeMins}</>}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div>You do not have recipes</div>
+            )}
           </div>
         </div>
       </main>

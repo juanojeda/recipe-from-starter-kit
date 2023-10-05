@@ -11,8 +11,20 @@ import { type CreateRecipeForAuthorInput } from "~/server/features/createRecipeF
 import { Label } from "~/components/ui/label"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select"
 import { isNonEmptyArray } from "~/utils/typeUtils"
 
 interface IngredientLine {
@@ -25,21 +37,30 @@ interface IngredientLineUI extends IngredientLine {
   id: string
 }
 
-type CreateRecipeForAuthorInputIngredients = CreateRecipeForAuthorInput['ingredients']
+type CreateRecipeForAuthorInputIngredients =
+  CreateRecipeForAuthorInput["ingredients"]
 
-const formatIngredientsInput = (ingredients: IngredientLineUI[]): CreateRecipeForAuthorInputIngredients => {
-
+const formatIngredientsInput = (
+  ingredients: IngredientLineUI[]
+): CreateRecipeForAuthorInputIngredients => {
   if (!isNonEmptyArray<IngredientLineUI>(ingredients)) {
     throw new Error("There are no ingredients")
   }
 
-  return ingredients.map(({ id: _id, qty, ...ingredient }) => ({ ...ingredient, qty: Number.parseFloat(qty) })) as CreateRecipeForAuthorInputIngredients
+  return ingredients.map(({ id: _id, qty, ...ingredient }) => ({
+    ...ingredient,
+    qty: Number.parseFloat(qty),
+  })) as CreateRecipeForAuthorInputIngredients
 }
 
 const NewRecipe: NextPage = () => {
-
   const router = useRouter()
-  const { mutate: createRecipe, isLoading, isError, isSuccess } = api.createRecipeForAuthor.useMutation()
+  const {
+    mutate: createRecipe,
+    isLoading,
+    isError,
+    isSuccess,
+  } = api.createRecipeForAuthor.useMutation()
   const [recipeName, setRecipeName] = React.useState<string>("")
   const [ingredients, setIngredients] = React.useState<IngredientLineUI[]>([])
 
@@ -55,10 +76,12 @@ const NewRecipe: NextPage = () => {
   }, [isSuccess, router])
 
   const updateIngredient = (newIngredient: IngredientLineUI): void => {
-    const ingredientToUpdateIndex = ingredients.findIndex(({ id }) => id === newIngredient.id)
+    const ingredientToUpdateIndex = ingredients.findIndex(
+      ({ id }) => id === newIngredient.id
+    )
 
     if (ingredientToUpdateIndex === -1) {
-      throw new Error("Ingredient id does not exist");
+      throw new Error("Ingredient id does not exist")
     }
 
     const ingredientsBefore = ingredients.slice(0, ingredientToUpdateIndex)
@@ -70,24 +93,31 @@ const NewRecipe: NextPage = () => {
   const handleCreateRecipe = (e: React.SyntheticEvent): void => {
     createRecipe({
       name: recipeName,
-      ingredients: formatIngredientsInput(ingredients)
+      ingredients: formatIngredientsInput(ingredients),
     })
 
     e.preventDefault()
   }
 
   const handleAddIngredientLine = (e: React.SyntheticEvent): void => {
-    setIngredients(ingredients => [...ingredients, {
-      id: crypto.randomUUID(),
-      name: "",
-      qty: "0",
-      unit: "GRAM"
-    }])
+    setIngredients((ingredients) => [
+      ...ingredients,
+      {
+        id: crypto.randomUUID(),
+        name: "",
+        qty: "0",
+        unit: "GRAM",
+      },
+    ])
 
     e.preventDefault()
   }
 
-  const buildNewIngredient = (ingredientId: string, value: string, propertyToUpdate: string): IngredientLineUI => {
+  const buildNewIngredient = (
+    ingredientId: string,
+    value: string,
+    propertyToUpdate: string
+  ): IngredientLineUI => {
     const baseIngredient = ingredients.find(({ id }) => id === ingredientId)
 
     if (!baseIngredient) {
@@ -97,19 +127,32 @@ const NewRecipe: NextPage = () => {
     return { ...baseIngredient, [propertyToUpdate]: value }
   }
 
-  const handleUpdateIngredientFromString = (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) => (value: string): void => {
+  const handleUpdateIngredientFromString =
+    (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) =>
+    (value: string): void => {
+      const newIngredient = buildNewIngredient(
+        ingredientId,
+        value,
+        propertyToUpdate
+      )
+      updateIngredient(newIngredient)
+    }
 
-    const newIngredient = buildNewIngredient(ingredientId, value, propertyToUpdate)
-    updateIngredient(newIngredient)
-  }
+  const handleUpdateIngredientFromEvent =
+    (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) =>
+    ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
+      const newIngredient = buildNewIngredient(
+        ingredientId,
+        currentTarget.value,
+        propertyToUpdate
+      )
 
-  const handleUpdateIngredientFromEvent = (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) => ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
-    const newIngredient = buildNewIngredient(ingredientId, currentTarget.value, propertyToUpdate)
+      updateIngredient(newIngredient)
+    }
 
-    updateIngredient(newIngredient)
-  }
-
-  const handleUpdateRecipeName = ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
+  const handleUpdateRecipeName = ({
+    currentTarget,
+  }: React.SyntheticEvent<HTMLInputElement>): void => {
     setRecipeName(currentTarget.value)
   }
 
@@ -122,7 +165,6 @@ const NewRecipe: NextPage = () => {
       </Head>
 
       <main className="flex min-h-screen flex-col items-center pt-4">
-
         <Card className="w-[450px]">
           <CardHeader>
             <CardTitle>Create a recipe</CardTitle>
@@ -135,59 +177,91 @@ const NewRecipe: NextPage = () => {
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="recipeName">Name</Label>
-                  <Input id="recipeName" placeholder="Name your recipe" value={recipeName} onChange={handleUpdateRecipeName} />
+                  <Input
+                    id="recipeName"
+                    placeholder="Name your recipe"
+                    value={recipeName}
+                    onChange={handleUpdateRecipeName}
+                  />
                 </div>
 
                 <h4>Ingredients</h4>
-                {
-                  ingredients.map(({ id, unit, qty, name }) => (
-                    <div key={id} className="flex flex-row space-x-1.5">
-                      <div className="flex flex-col space-y-1.5">
-                        <Label className="typography-body-muted" htmlFor={`ingredientName--${id}`}>Ingredient</Label>
-                        <Input id={`ingredientName--${id}`} placeholder="Eg. Onions" onChange={handleUpdateIngredientFromEvent("name", id)} data-ingredient-id={id} value={name} />
-                      </div>
-                      <div className="flex flex-col flex-1 space-y-1.5">
-                        <Label className="typography-body-muted" htmlFor={`ingredientQty--${id}`}>Qty</Label>
-                        <Input id={`ingredientQty--${id}`} placeholder="100" data-ingredient-id={id} onChange={handleUpdateIngredientFromEvent("qty", id)} value={qty} type="number" />
-                      </div>
-                      <div className="flex flex-col flex-1 space-y-1.5">
-                        <Label className="typography-body-muted" htmlFor={`ingredientUnit--${id}`}>Unit</Label>
-                        <Select value={unit} onValueChange={handleUpdateIngredientFromString("unit", id)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Theme" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {
-                              Object.keys(MeasurementUnit).map(unitKey => (
-                                <SelectItem key={unitKey} value={unitKey}>{unitKey}</SelectItem>
-                              ))
-                            }
-                          </SelectContent>
-                        </Select>
-                      </div>
+                {ingredients.map(({ id, unit, qty, name }) => (
+                  <div key={id} className="flex flex-row space-x-1.5">
+                    <div className="flex flex-col space-y-1.5">
+                      <Label
+                        className="typography-body-muted"
+                        htmlFor={`ingredientName--${id}`}
+                      >
+                        Ingredient
+                      </Label>
+                      <Input
+                        id={`ingredientName--${id}`}
+                        placeholder="Eg. Onions"
+                        onChange={handleUpdateIngredientFromEvent("name", id)}
+                        data-ingredient-id={id}
+                        value={name}
+                      />
                     </div>
-                  ))
-                }
+                    <div className="flex flex-1 flex-col space-y-1.5">
+                      <Label
+                        className="typography-body-muted"
+                        htmlFor={`ingredientQty--${id}`}
+                      >
+                        Qty
+                      </Label>
+                      <Input
+                        id={`ingredientQty--${id}`}
+                        placeholder="100"
+                        data-ingredient-id={id}
+                        onChange={handleUpdateIngredientFromEvent("qty", id)}
+                        value={qty}
+                        type="number"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col space-y-1.5">
+                      <Label
+                        className="typography-body-muted"
+                        htmlFor={`ingredientUnit--${id}`}
+                      >
+                        Unit
+                      </Label>
+                      <Select
+                        value={unit}
+                        onValueChange={handleUpdateIngredientFromString(
+                          "unit",
+                          id
+                        )}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Theme" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.keys(MeasurementUnit).map((unitKey) => (
+                            <SelectItem key={unitKey} value={unitKey}>
+                              {unitKey}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                ))}
 
-                <Button variant="outline" onClick={handleAddIngredientLine}>Add ingredient +</Button>
-
-
-
+                <Button variant="outline" onClick={handleAddIngredientLine}>
+                  Add ingredient +
+                </Button>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button asChild variant="outline">
-              <Link href="/">
-                Cancel
-              </Link>
+              <Link href="/">Cancel</Link>
             </Button>
             <Button onClick={handleCreateRecipe}>Save Recipe</Button>
           </CardFooter>
         </Card>
-
       </main>
-
     </>
   )
 }

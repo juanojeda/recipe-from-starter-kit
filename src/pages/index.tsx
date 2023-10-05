@@ -38,12 +38,9 @@ const Home: NextPage = () => {
             </Button>
           )}
 
-
-
-          <h1>My Recipes</h1>
           <div className="flex flex-col items-center gap-2">
 
-            <h2>Your recipes</h2>
+            <h1>Your recipes</h1>
 
             <Button asChild>
               <Link href="/recipes/new">Create a recipe</Link>
@@ -54,11 +51,13 @@ const Home: NextPage = () => {
                 <ul>
                   {
                     recipesData.map(({ name, id, prepTimeMins, cookTimeMins }) => (
-                      <li key={id}><strong>{name}</strong>
-                        {
-                          prepTimeMins && <> - Prep time: {prepTimeMins}</>
-                        }
-                        {cookTimeMins && <> - Cook time: {cookTimeMins}</>}
+                      <li key={id}>
+                        <Link href={`/recipes/${id}`}>{name}
+                          {
+                            prepTimeMins && <> - Prep time: {prepTimeMins}</>
+                          }
+                          {cookTimeMins && <> - Cook time: {cookTimeMins}</>}
+                        </Link>
                       </li>
                     ))
                   }

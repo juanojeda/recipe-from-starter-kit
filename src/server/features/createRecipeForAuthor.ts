@@ -5,14 +5,16 @@ import { publicProcedure } from "~/server/middleware/trpc"
 import prisma from "~/server/external/prisma"
 
 const createRecipeForAuthorInputValidator = z.object({
-  name: z.string(),
-  ingredients: z.array(
-    z.object({
-      name: z.string(),
-      qty: z.number(),
-      unit: z.nativeEnum(MeasurementUnit),
-    })
-  ),
+  name: z.string().nonempty(),
+  ingredients: z
+    .array(
+      z.object({
+        name: z.string(),
+        qty: z.number(),
+        unit: z.nativeEnum(MeasurementUnit),
+      })
+    )
+    .nonempty(),
 })
 
 export type CreateRecipeForAuthorInput = z.infer<
@@ -39,24 +41,21 @@ type MutationArgs = {
 }
 
 async function service({ recipe, ctx }: MutationArgs) {
-  const user = ctx.session
-    ? ctx.session.user
-    : {
-        name: "Seedy McSeedface",
-        email: "seed.user1@everest.engineering",
-      }
+  if (!ctx.session) {
+    throw new Error("Unauthenticated user")
+  }
 
-  await prisma.recipe.create({
+  const recipePayload = await prisma.recipe.create({
     data: {
       name: recipe.name,
       author: {
         connectOrCreate: {
           where: {
-            email: user.email,
+            email: ctx.session.user.email,
           },
           create: {
-            email: user.email,
-            name: user.name,
+            email: ctx.session.user.email,
+            name: ctx.session.user.name,
           },
         },
       },
@@ -79,5 +78,5 @@ async function service({ recipe, ctx }: MutationArgs) {
     },
   })
 
-  return true
+  return recipePayload.id
 }

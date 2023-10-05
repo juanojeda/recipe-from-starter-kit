@@ -1,57 +1,60 @@
 // This component comes from an open PR in the shadcn/ui repo.
 
-import React from "react"
+import React, { useEffect } from "react"
 import { type NextPage } from "next"
 import Head from "next/head"
-import { useSession } from "next-auth/react"
+import { useRouter } from "next/router"
+import Link from "next/link"
+import { MeasurementUnit } from "@prisma/client"
 import { api } from "~/server/api"
+import { type CreateRecipeForAuthorInput } from "~/server/features/createRecipeForAuthor"
+import { Label } from "~/components/ui/label"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card"
-import { Label } from "@radix-ui/react-label"
-import { MeasurementUnit } from "@prisma/client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
-import { CreateRecipeForAuthorInput } from "~/server/features/createRecipeForAuthor"
-import Link from "next/link"
+import { isNonEmptyArray } from "~/utils/typeUtils"
 
 interface IngredientLine {
-  id: string
   name: string
   qty: string
   unit: MeasurementUnit
 }
 
-const formatIngredientsInput = (ingredients: IngredientLine[]): CreateRecipeForAuthorInput['ingredients'] => {
-  return ingredients.map(({ qty, ...ingredient }) => ({ ...ingredient, qty: Number.parseFloat(qty) }))
+interface IngredientLineUI extends IngredientLine {
+  id: string
+}
+
+type CreateRecipeForAuthorInputIngredients = CreateRecipeForAuthorInput['ingredients']
+
+const formatIngredientsInput = (ingredients: IngredientLineUI[]): CreateRecipeForAuthorInputIngredients => {
+
+  if (!isNonEmptyArray<IngredientLineUI>(ingredients)) {
+    throw new Error("There are no ingredients")
+  }
+
+  return ingredients.map(({ id: _id, qty, ...ingredient }) => ({ ...ingredient, qty: Number.parseFloat(qty) })) as CreateRecipeForAuthorInputIngredients
 }
 
 const NewRecipe: NextPage = () => {
 
-  // TODO: add loading, error, success handline
-  const { mutate: createRecipe, isLoading, isError, isSuccess, failureReason } = api.createRecipeForAuthor.useMutation()
+  const router = useRouter()
+  const { mutate: createRecipe, isLoading, isError, isSuccess } = api.createRecipeForAuthor.useMutation()
   const [recipeName, setRecipeName] = React.useState<string>("")
-  const [ingredients, setIngredients] = React.useState<IngredientLine[]>([])
+  const [ingredients, setIngredients] = React.useState<IngredientLineUI[]>([])
 
-  const handleCreateRecipe = () => {
-    createRecipe({
-      name: recipeName,
-      ingredients: formatIngredientsInput(ingredients)
-    })
-  }
+  useEffect(() => {
+    const timedRedirectAfterSave = (timeoutMs: number): void => {
+      setTimeout(() => {
+        void router.push("/") // redirect to home page
+      }, timeoutMs)
+    }
+    if (isSuccess) {
+      timedRedirectAfterSave(1000)
+    }
+  }, [isSuccess, router])
 
-  const addIngredientLine = (e: React.SyntheticEvent): void => {
-    setIngredients(ingredients => [...ingredients, {
-      id: crypto.randomUUID(),
-      name: "",
-      qty: "0",
-      unit: "GRAM"
-    }])
-
-    e.preventDefault()
-  }
-
-  // function to update ingredient line
-  const updateIngredient = (newIngredient: IngredientLine): void => {
+  const updateIngredient = (newIngredient: IngredientLineUI): void => {
     const ingredientToUpdateIndex = ingredients.findIndex(({ id }) => id === newIngredient.id)
 
     if (ingredientToUpdateIndex === -1) {
@@ -64,28 +67,44 @@ const NewRecipe: NextPage = () => {
     setIngredients([...ingredientsBefore, newIngredient, ...ingredientsAfter])
   }
 
-  const handleUpdateIngredient = (propertyToUpdate: keyof IngredientLine) => ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
-    const ingredientId = currentTarget.dataset['ingredientId']
+  const handleCreateRecipe = (e: React.SyntheticEvent): void => {
+    createRecipe({
+      name: recipeName,
+      ingredients: formatIngredientsInput(ingredients)
+    })
+
+    e.preventDefault()
+  }
+
+  const handleAddIngredientLine = (e: React.SyntheticEvent): void => {
+    setIngredients(ingredients => [...ingredients, {
+      id: crypto.randomUUID(),
+      name: "",
+      qty: "0",
+      unit: "GRAM"
+    }])
+
+    e.preventDefault()
+  }
+
+  const buildNewIngredient = (ingredientId: string, value: string, propertyToUpdate: string): IngredientLineUI => {
     const baseIngredient = ingredients.find(({ id }) => id === ingredientId)
 
     if (!baseIngredient) {
       throw new Error("Ingredient to update was not found")
     }
 
-    const newIngredient = { ...baseIngredient, [propertyToUpdate]: currentTarget.value }
+    return { ...baseIngredient, [propertyToUpdate]: value }
+  }
 
+  const handleUpdateIngredientFromString = (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) => (value: string): void => {
+
+    const newIngredient = buildNewIngredient(ingredientId, value, propertyToUpdate)
     updateIngredient(newIngredient)
   }
 
-  const handleUpdateIngredientUnitForId = (ingredientId: string) => (unit: MeasurementUnit): void => {
-    const baseIngredient = ingredients.find(({ id }) => id === ingredientId)
-    const propertyToUpdate = "unit";
-
-    if (!baseIngredient) {
-      throw new Error("Ingredient to update was not found")
-    }
-
-    const newIngredient = { ...baseIngredient, [propertyToUpdate]: unit }
+  const handleUpdateIngredientFromEvent = (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) => ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
+    const newIngredient = buildNewIngredient(ingredientId, currentTarget.value, propertyToUpdate)
 
     updateIngredient(newIngredient)
   }
@@ -125,15 +144,15 @@ const NewRecipe: NextPage = () => {
                     <div key={id} className="flex flex-row space-x-1.5">
                       <div className="flex flex-col space-y-1.5">
                         <Label className="typography-body-muted" htmlFor={`ingredientName--${id}`}>Ingredient</Label>
-                        <Input id={`ingredientName--${id}`} placeholder="Eg. Onions" onChange={handleUpdateIngredient("name")} data-ingredient-id={id} value={name} />
+                        <Input id={`ingredientName--${id}`} placeholder="Eg. Onions" onChange={handleUpdateIngredientFromEvent("name", id)} data-ingredient-id={id} value={name} />
                       </div>
                       <div className="flex flex-col flex-1 space-y-1.5">
                         <Label className="typography-body-muted" htmlFor={`ingredientQty--${id}`}>Qty</Label>
-                        <Input id={`ingredientQty--${id}`} placeholder="100" data-ingredient-id={id} onChange={handleUpdateIngredient("qty")} value={qty} type="number" />
+                        <Input id={`ingredientQty--${id}`} placeholder="100" data-ingredient-id={id} onChange={handleUpdateIngredientFromEvent("qty", id)} value={qty} type="number" />
                       </div>
                       <div className="flex flex-col flex-1 space-y-1.5">
                         <Label className="typography-body-muted" htmlFor={`ingredientUnit--${id}`}>Unit</Label>
-                        <Select value={unit} onValueChange={handleUpdateIngredientUnitForId(id)}>
+                        <Select value={unit} onValueChange={handleUpdateIngredientFromString("unit", id)}>
                           <SelectTrigger>
                             <SelectValue placeholder="Theme" />
                           </SelectTrigger>
@@ -150,7 +169,7 @@ const NewRecipe: NextPage = () => {
                   ))
                 }
 
-                <Button variant="outline" onClick={addIngredientLine}>Add ingredient +</Button>
+                <Button variant="outline" onClick={handleAddIngredientLine}>Add ingredient +</Button>
 
 
 

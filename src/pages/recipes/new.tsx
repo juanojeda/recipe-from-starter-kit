@@ -63,6 +63,7 @@ const NewRecipe: NextPage = () => {
   } = api.createRecipeForAuthor.useMutation()
   const [recipeName, setRecipeName] = React.useState<string>("")
   const [ingredients, setIngredients] = React.useState<IngredientLineUI[]>([])
+  const [instructions, setInstructions] = React.useState<string[]>([])
 
   useEffect(() => {
     const timedRedirectAfterSave = (timeoutMs: number): void => {
@@ -113,6 +114,15 @@ const NewRecipe: NextPage = () => {
     e.preventDefault()
   }
 
+  const handleAddInstructionLine = (e: React.SyntheticEvent): void => {
+    setInstructions((instructions) => [
+      ...instructions,
+      "",
+    ])
+
+    e.preventDefault()
+  }
+
   const buildNewIngredient = (
     ingredientId: string,
     value: string,
@@ -129,26 +139,26 @@ const NewRecipe: NextPage = () => {
 
   const handleUpdateIngredientFromString =
     (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) =>
-    (value: string): void => {
-      const newIngredient = buildNewIngredient(
-        ingredientId,
-        value,
-        propertyToUpdate
-      )
-      updateIngredient(newIngredient)
-    }
+      (value: string): void => {
+        const newIngredient = buildNewIngredient(
+          ingredientId,
+          value,
+          propertyToUpdate
+        )
+        updateIngredient(newIngredient)
+      }
 
   const handleUpdateIngredientFromEvent =
     (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) =>
-    ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
-      const newIngredient = buildNewIngredient(
-        ingredientId,
-        currentTarget.value,
-        propertyToUpdate
-      )
+      ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
+        const newIngredient = buildNewIngredient(
+          ingredientId,
+          currentTarget.value,
+          propertyToUpdate
+        )
 
-      updateIngredient(newIngredient)
-    }
+        updateIngredient(newIngredient)
+      }
 
   const handleUpdateRecipeName = ({
     currentTarget,
@@ -247,10 +257,22 @@ const NewRecipe: NextPage = () => {
                     </div>
                   </div>
                 ))}
-
                 <Button variant="outline" onClick={handleAddIngredientLine}>
                   Add ingredient +
                 </Button>
+
+                <h4>Method instructions</h4>
+
+                {
+                  instructions.map((instruction) => (
+                    <Input key={instruction} />
+                  ))
+                }
+
+                <Button variant="outline" onClick={handleAddInstructionLine}>
+                  Add instruction +
+                </Button>
+
               </div>
             </form>
           </CardContent>

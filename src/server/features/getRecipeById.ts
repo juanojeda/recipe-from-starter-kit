@@ -23,6 +23,7 @@ const fetchRecipe = async (id: string) => {
     select: {
       id: true,
       name: true,
+      instructions: true,
       ingredients: {
         select: {
           id: true,

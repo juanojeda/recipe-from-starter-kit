@@ -89,19 +89,31 @@ model RecipeIngredient {
   @@index([recipeId])
 }
 
+model Instruction {
+  id       String @id @default(cuid())
+  order    Int
+  text     String
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+
+  @@unique([recipeId, order], name: "recipeNthInstructionId")
+  @@index([recipeId])
+}
+
 model Recipe {
   id           String             @id @default(cuid())
-  name         String             @unique
+  name         String
   cookTimeMins Int? // Currently represents a number of minutes
   prepTimeMins Int? // Currently represents a number of minutes
   ingredients  RecipeIngredient[]
-  instructions String[]
+  instructions Instruction[]
   author       User               @relation(fields: [authorId], references: [id])
   authorId     String
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @default(now())
   deletedAt    DateTime?
 
+  @@unique([name, authorId], name: "recipeByAuthorId")
   @@index([authorId])
 }
 

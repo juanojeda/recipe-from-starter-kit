@@ -14,7 +14,7 @@ const RecipeDetail: NextPage = () => {
 
   if (!recipeData) return null
 
-  const { ingredients, name: recipeName } = recipeData
+  const { ingredients, name: recipeName, instructions } = recipeData
 
   return (
     <>
@@ -35,6 +35,15 @@ const RecipeDetail: NextPage = () => {
           </li>
         ))}
       </ul>
+
+      <h3>Method</h3>
+      <ol>
+        {instructions.map((instruction) => (
+          <li key={atob(instruction)}>
+            {instruction}
+          </li>
+        ))}
+      </ol>
     </>
   )
 }

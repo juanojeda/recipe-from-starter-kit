@@ -33,44 +33,53 @@ const mapInstructionsSeedToInstructions = (
   ),
 })
 
+const mapIngredientsSeedToRecipeIngredients = (
+  ingredients: RecipeSeedData["ingredients"],
+  recipeId: string
+) => {
+  return {
+    connectOrCreate: ingredients.map((ingredient) => ({
+      where: {
+        recipeIngredientId: {
+          ingredientId: ingredient.id,
+          recipeId,
+        },
+      },
+      create: {
+        measurementQty: ingredient.qty,
+        measurementUnit: ingredient.unit,
+        ingredient: {
+          connectOrCreate: {
+            where: {
+              name: ingredient.name,
+            },
+            create: {
+              id: ingredient.id,
+              name: ingredient.name,
+            },
+          },
+        },
+      },
+    })),
+  }
+}
+
 const seedRecipe = async (recipes: RecipeSeedData[]) => {
   await Promise.all(
     recipes.map(async (recipe, n) => {
       const recipeId = `${recipe.name.replaceAll(" ", "_")}__${n}`
-      const dbRecipe = await prisma.recipe.upsert({
+
+      await prisma.recipe.upsert({
         where: {
           id: recipeId,
         },
         create: {
           id: recipeId,
           name: recipe.name,
-          ingredients: {
-            connectOrCreate: recipe.ingredients.map((ingredient) => {
-              return {
-                where: {
-                  recipeIngredientId: {
-                    ingredientId: ingredient.id,
-                    recipeId,
-                  },
-                },
-                create: {
-                  measurementQty: ingredient.qty,
-                  measurementUnit: ingredient.unit,
-                  ingredient: {
-                    connectOrCreate: {
-                      where: {
-                        name: ingredient.name,
-                      },
-                      create: {
-                        id: ingredient.id,
-                        name: ingredient.name,
-                      },
-                    },
-                  },
-                },
-              }
-            }),
-          },
+          ingredients: mapIngredientsSeedToRecipeIngredients(
+            recipe.ingredients,
+            recipeId
+          ),
           instructions: mapInstructionsSeedToInstructions(
             recipe.instructions,
             recipeId,
@@ -86,6 +95,10 @@ const seedRecipe = async (recipes: RecipeSeedData[]) => {
             recipe.instructions,
             recipeId,
             "update"
+          ),
+          ingredients: mapIngredientsSeedToRecipeIngredients(
+            recipe.ingredients,
+            recipeId
           ),
           prepTimeMins: recipe.prepTimeMins,
           cookTimeMins: recipe.cookTimeMins,

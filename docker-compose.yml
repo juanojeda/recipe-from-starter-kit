@@ -15,8 +15,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-    volumes:
-      - "./prisma/:/db-setup/prisma/"
 
   seed-dev-database:
     build:

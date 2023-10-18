@@ -110,58 +110,6 @@ const seedRecipe = async (recipes: RecipeSeedData[]) => {
   await prisma.recipe.createMany({ data: recipesData })
   await prisma.recipeIngredient.createMany({ data: recipeIngredientsData })
   await prisma.instruction.createMany({ data: instructionsData })
-
-  // await Promise.all(
-  //   recipes.map(
-  //     async ({
-  //       id,
-  //       name,
-  //       ingredients,
-  //       instructions,
-  //       prepTimeMins,
-  //       cookTimeMins,
-  //       authorId,
-  //     }) => {
-  //       const recipeId = id
-
-  //       await prisma.recipe.upsert({
-  //         where: {
-  //           id: recipeId,
-  //         },
-  //         create: {
-  //           id: recipeId,
-  //           name,
-  //           ingredients: mapIngredientsSeedToRecipeIngredients(
-  //             ingredients,
-  //             recipeId
-  //           ),
-  //           instructions: mapInstructionsSeedToInstructions(
-  //             instructions,
-  //             recipeId,
-  //             "create"
-  //           ),
-  //           authorId,
-  //           prepTimeMins,
-  //           cookTimeMins,
-  //         },
-  //         update: {
-  //           name,
-  //           instructions: mapInstructionsSeedToInstructions(
-  //             instructions,
-  //             recipeId,
-  //             "update"
-  //           ),
-  //           ingredients: mapIngredientsSeedToRecipeIngredients(
-  //             ingredients,
-  //             recipeId
-  //           ),
-  //           prepTimeMins,
-  //           cookTimeMins,
-  //         },
-  //       })
-  //     }
-  //   )
-  // )
 }
 
 const seedUsers = async (users: UserSeedData[]) => {

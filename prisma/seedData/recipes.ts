@@ -15,17 +15,36 @@ export interface RecipeSeedData {
   cookTimeMins?: number
 }
 
+const SALT = {
+  id: "SALT",
+  name: "salt",
+}
+
+const WATER = {
+  id: "WATER",
+  name: "water",
+}
+
+const ONION = {
+  id: "ONION",
+  name: "onion",
+}
+
+const GARLIC = {
+  id: "GARLIC",
+  name: "garlic",
+}
+
 export const recipesSeed: RecipeSeedData[] = [
   {
     name: "My first recipe",
     ingredients: [
       {
-        id: "SALT",
-        name: "salt",
+        ...SALT,
         qty: 10,
         unit: "GRAM" as MeasurementUnit,
       },
-      { name: "water", id: "WATER", qty: 1000, unit: "ML" as MeasurementUnit },
+      { ...WATER, qty: 1000, unit: "ML" as MeasurementUnit },
     ],
     instructions: ["First instruction", "Second instruction"],
     authorId: `${SEED_USER_UUID}1`,
@@ -36,14 +55,12 @@ export const recipesSeed: RecipeSeedData[] = [
     name: "Another recipe",
     ingredients: [
       {
-        id: "ONION",
-        name: "onion",
+        ...ONION,
         qty: 0.5,
         unit: "CUP" as MeasurementUnit,
       },
       {
-        name: "garlic",
-        id: "GARLIC",
+        ...GARLIC,
         qty: 10,
         unit: "GRAM" as MeasurementUnit,
       },
@@ -55,14 +72,12 @@ export const recipesSeed: RecipeSeedData[] = [
     name: "Spaghetti Bologogo",
     ingredients: [
       {
-        id: "ONION",
-        name: "onion",
+        ...ONION,
         qty: 0.5,
         unit: "CUP" as MeasurementUnit,
       },
       {
-        name: "garlic",
-        id: "GARLIC",
+        ...GARLIC,
         qty: 10,
         unit: "GRAM" as MeasurementUnit,
       },

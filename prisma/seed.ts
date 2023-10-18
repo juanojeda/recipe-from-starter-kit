@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import { type RecipeSeedData, recipesSeed } from "./seedData/recipes"
 import { type UserSeedData, usersSeed } from "./seedData/users"
+import { IngredientSeedData, ingredients } from "./seedData/ingredients"
 
 export const prisma = new PrismaClient()
 
@@ -51,7 +52,7 @@ const mapIngredientsSeedToRecipeIngredients = (
         ingredient: {
           connectOrCreate: {
             where: {
-              name: ingredient.name,
+              id: ingredient.id,
             },
             create: {
               id: ingredient.id,
@@ -64,48 +65,103 @@ const mapIngredientsSeedToRecipeIngredients = (
   }
 }
 
-const seedRecipe = async (recipes: RecipeSeedData[]) => {
-  await Promise.all(
-    recipes.map(async (recipe, n) => {
-      const recipeId = `${recipe.name.replaceAll(" ", "_")}__${n}`
+const seedIngredients = async (ingredients: IngredientSeedData[]) => {
+  const data = ingredients.map((ingredient) => ({
+    id: ingredient.id,
+    name: ingredient.name,
+  }))
+  await prisma.ingredient.createMany({
+    data,
+  })
+}
 
-      await prisma.recipe.upsert({
-        where: {
-          id: recipeId,
-        },
-        create: {
-          id: recipeId,
-          name: recipe.name,
-          ingredients: mapIngredientsSeedToRecipeIngredients(
-            recipe.ingredients,
-            recipeId
-          ),
-          instructions: mapInstructionsSeedToInstructions(
-            recipe.instructions,
-            recipeId,
-            "create"
-          ),
-          authorId: recipe.authorId,
-          prepTimeMins: recipe.prepTimeMins,
-          cookTimeMins: recipe.cookTimeMins,
-        },
-        update: {
-          name: recipe.name,
-          instructions: mapInstructionsSeedToInstructions(
-            recipe.instructions,
-            recipeId,
-            "update"
-          ),
-          ingredients: mapIngredientsSeedToRecipeIngredients(
-            recipe.ingredients,
-            recipeId
-          ),
-          prepTimeMins: recipe.prepTimeMins,
-          cookTimeMins: recipe.cookTimeMins,
-        },
-      })
+const seedRecipe = async (recipes: RecipeSeedData[]) => {
+  const recipesData = recipes.map(
+    ({ id, name, prepTimeMins, cookTimeMins, authorId }) => ({
+      id,
+      name,
+      authorId,
+      prepTimeMins,
+      cookTimeMins,
     })
   )
+
+  const recipeIngredientsData = recipes
+    .map(({ id, ingredients }) =>
+      ingredients.map((ingredient) => ({
+        recipeId: id,
+        ingredientId: ingredient.id,
+        measurementQty: ingredient.qty,
+        measurementUnit: ingredient.unit,
+      }))
+    )
+    .flat()
+
+  const instructionsData = recipes
+    .map(({ id, instructions }) =>
+      instructions.map((instruction, order) => ({
+        recipeId: id,
+        text: instruction,
+        order,
+      }))
+    )
+    .flat()
+
+  await prisma.recipe.createMany({ data: recipesData })
+  await prisma.recipeIngredient.createMany({ data: recipeIngredientsData })
+  await prisma.instruction.createMany({ data: instructionsData })
+
+  // await Promise.all(
+  //   recipes.map(
+  //     async ({
+  //       id,
+  //       name,
+  //       ingredients,
+  //       instructions,
+  //       prepTimeMins,
+  //       cookTimeMins,
+  //       authorId,
+  //     }) => {
+  //       const recipeId = id
+
+  //       await prisma.recipe.upsert({
+  //         where: {
+  //           id: recipeId,
+  //         },
+  //         create: {
+  //           id: recipeId,
+  //           name,
+  //           ingredients: mapIngredientsSeedToRecipeIngredients(
+  //             ingredients,
+  //             recipeId
+  //           ),
+  //           instructions: mapInstructionsSeedToInstructions(
+  //             instructions,
+  //             recipeId,
+  //             "create"
+  //           ),
+  //           authorId,
+  //           prepTimeMins,
+  //           cookTimeMins,
+  //         },
+  //         update: {
+  //           name,
+  //           instructions: mapInstructionsSeedToInstructions(
+  //             instructions,
+  //             recipeId,
+  //             "update"
+  //           ),
+  //           ingredients: mapIngredientsSeedToRecipeIngredients(
+  //             ingredients,
+  //             recipeId
+  //           ),
+  //           prepTimeMins,
+  //           cookTimeMins,
+  //         },
+  //       })
+  //     }
+  //   )
+  // )
 }
 
 const seedUsers = async (users: UserSeedData[]) => {
@@ -122,6 +178,7 @@ const seedUsers = async (users: UserSeedData[]) => {
 
 async function runSeeds() {
   await seedUsers(usersSeed)
+  await seedIngredients(ingredients)
   await seedRecipe(recipesSeed)
 }
 

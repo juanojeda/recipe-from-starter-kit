@@ -1,7 +1,9 @@
 import { type MeasurementUnit } from "@prisma/client"
 import { SEED_USER_UUID } from "./users"
+import { SALT, GARLIC, ONION, WATER } from "./ingredients"
 
 export interface RecipeSeedData {
+  id: string
   name: string
   ingredients: {
     id: string
@@ -15,28 +17,9 @@ export interface RecipeSeedData {
   cookTimeMins?: number
 }
 
-const SALT = {
-  id: "SALT",
-  name: "salt",
-}
-
-const WATER = {
-  id: "WATER",
-  name: "water",
-}
-
-const ONION = {
-  id: "ONION",
-  name: "onion",
-}
-
-const GARLIC = {
-  id: "GARLIC",
-  name: "garlic",
-}
-
 export const recipesSeed: RecipeSeedData[] = [
   {
+    id: "RECIPE_0001",
     name: "My first recipe",
     ingredients: [
       {
@@ -52,6 +35,7 @@ export const recipesSeed: RecipeSeedData[] = [
     cookTimeMins: 30,
   },
   {
+    id: "RECIPE_0002",
     name: "Another recipe",
     ingredients: [
       {
@@ -69,6 +53,7 @@ export const recipesSeed: RecipeSeedData[] = [
     authorId: `${SEED_USER_UUID}1`,
   },
   {
+    id: "RECIPE_0003",
     name: "Spaghetti Bologogo",
     ingredients: [
       {

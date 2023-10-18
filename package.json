@@ -15,6 +15,8 @@
     "prepare": "husky install",
     "postinstall": "prisma generate",
     "db:setup": "prisma db push && prisma generate && prisma db seed",
+    "db:__reset": "prisma db push --force-reset",
+    "db:seed": "prisma db seed",
     "prettier:check": "prettier ./ --check",
     "prettier:fix": "prettier ./ --write"
   },

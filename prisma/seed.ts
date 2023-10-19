@@ -10,9 +10,21 @@ const seedIngredients = async (ingredients: IngredientSeedData[]) => {
     id: ingredient.id,
     name: ingredient.name,
   }))
+
+  // then create ingredients
   await prisma.ingredient.createMany({
     data,
   })
+}
+
+const deleteSeeds = async () => {
+  // deletions must happen in order:
+  // instructions -> recipeIngredients -> ingredients -> recipes -> users
+  await prisma.instruction.deleteMany({})
+  await prisma.recipeIngredient.deleteMany({})
+  await prisma.ingredient.deleteMany({})
+  await prisma.recipe.deleteMany({})
+  await prisma.user.deleteMany({})
 }
 
 const seedRecipe = async (recipes: RecipeSeedData[]) => {
@@ -71,6 +83,7 @@ const seedUsers = async (users: UserSeedData[]) => {
 }
 
 async function runSeeds() {
+  await deleteSeeds()
   await seedUsers(usersSeed)
   await seedIngredients(ingredients)
   await seedRecipe(recipesSeed)

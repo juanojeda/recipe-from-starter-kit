@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import { type RecipeSeedData, recipesSeed } from "./seedData/recipes"
 import { type UserSeedData, usersSeed } from "./seedData/users"
-import { IngredientSeedData, ingredients } from "./seedData/ingredients"
+import { type IngredientSeedData, ingredients } from "./seedData/ingredients"
 
 export const prisma = new PrismaClient()
 

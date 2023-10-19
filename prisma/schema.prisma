@@ -113,6 +113,9 @@ model Recipe {
   updatedAt    DateTime           @default(now())
   deletedAt    DateTime?
 
+  childRecipes  Recipe[] @relation("ChildParentRecipes")
+  parentRecipes Recipe[] @relation("ChildParentRecipes")
+
   @@unique([name, authorId], name: "recipeByAuthorId")
   @@index([authorId])
 }

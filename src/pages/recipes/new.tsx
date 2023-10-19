@@ -115,10 +115,7 @@ const NewRecipe: NextPage = () => {
   }
 
   const handleAddInstructionLine = (e: React.SyntheticEvent): void => {
-    setInstructions((instructions) => [
-      ...instructions,
-      "",
-    ])
+    setInstructions((instructions) => [...instructions, ""])
 
     e.preventDefault()
   }
@@ -139,26 +136,26 @@ const NewRecipe: NextPage = () => {
 
   const handleUpdateIngredientFromString =
     (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) =>
-      (value: string): void => {
-        const newIngredient = buildNewIngredient(
-          ingredientId,
-          value,
-          propertyToUpdate
-        )
-        updateIngredient(newIngredient)
-      }
+    (value: string): void => {
+      const newIngredient = buildNewIngredient(
+        ingredientId,
+        value,
+        propertyToUpdate
+      )
+      updateIngredient(newIngredient)
+    }
 
   const handleUpdateIngredientFromEvent =
     (propertyToUpdate: keyof IngredientLineUI, ingredientId: string) =>
-      ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
-        const newIngredient = buildNewIngredient(
-          ingredientId,
-          currentTarget.value,
-          propertyToUpdate
-        )
+    ({ currentTarget }: React.SyntheticEvent<HTMLInputElement>): void => {
+      const newIngredient = buildNewIngredient(
+        ingredientId,
+        currentTarget.value,
+        propertyToUpdate
+      )
 
-        updateIngredient(newIngredient)
-      }
+      updateIngredient(newIngredient)
+    }
 
   const handleUpdateRecipeName = ({
     currentTarget,
@@ -263,16 +260,13 @@ const NewRecipe: NextPage = () => {
 
                 <h4>Method instructions</h4>
 
-                {
-                  instructions.map((instruction) => (
-                    <Input key={instruction} />
-                  ))
-                }
+                {instructions.map((instruction) => (
+                  <Input key={instruction} />
+                ))}
 
                 <Button variant="outline" onClick={handleAddInstructionLine}>
                   Add instruction +
                 </Button>
-
               </div>
             </form>
           </CardContent>

@@ -39,9 +39,7 @@ const RecipeDetail: NextPage = () => {
       <h3>Method</h3>
       <ol>
         {instructions.map((instruction) => (
-          <li key={atob(instruction)}>
-            {instruction}
-          </li>
+          <li key={atob(instruction)}>{instruction}</li>
         ))}
       </ol>
     </>
